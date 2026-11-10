@@ -16,6 +16,19 @@ def read_headers(path):
     }
 
 
+def get_domain(address):
+    parts = address.split("@")
+    domain = parts[-1]
+    domain = domain.strip("<> ")
+
+    return domain.lower()
+
+
 headers = read_headers("samples/test1.eml")
 for key, value in headers.items():
     print(key, ":", value)
+    
+    
+print(get_domain("jane@example.com"))
+print(get_domain("GradIreland <news@EMAIL.gradireland.com>"))
+print(get_domain("<bounce@mail.AIB-secure.com>"))
