@@ -2,6 +2,7 @@ from email import policy
 from email.parser import BytesParser
 import re
 import hashlib
+import sys
 from urllib.parse import urlparse
 
 
@@ -114,7 +115,11 @@ def get_attachments(path):
 
 
 if __name__ == "__main__":
-    path = "samples/fake_phish.eml"
+    if len(sys.argv) < 2:
+        print("Usage: python analyser.py <email.eml>")
+        sys.exit()
+    path = sys.argv[1]
+
     headers = read_headers(path)
     total = 0
     total += check_email(headers)
@@ -131,4 +136,3 @@ if __name__ == "__main__":
         print("Verdict: MEDIUM RISK - check carefully")
     else:
         print("Verdict: LOW RISK")
-        
