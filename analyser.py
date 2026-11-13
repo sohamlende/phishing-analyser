@@ -1,6 +1,7 @@
 from email import policy
 from email.parser import BytesParser
 import re
+import hashlib
 from urllib.parse import urlparse
 
 
@@ -74,8 +75,33 @@ def get_urls(path, from_domain):
             print("  EXTERNAL", host, "->", link)
 
 
+def get_attachments(path):
+    """List each attachment with its SHA-256 hash and flag risky file types."""
+    with open(path, "rb") as f:
+        msg = BytesParser(policy=policy.default).parse(f)
+
+    risky = (".exe", ".js", ".vbs", ".scr", ".bat", ".html", ".htm",
+             ".zip", ".rar", ".iso", ".docm", ".xlsm")
+
+    count = 0
+    for part in msg.iter_attachments():
+        count = count + 1
+        name = part.get_filename()
+        data = part.get_payload(decode=True)
+        file_hash = hashlib.sha256(data).hexdigest()
+        print("Attachment:", name)
+        print("  SHA-256:", file_hash)
+        if name and name.lower().endswith(risky):
+            print("  RISKY file type - do not open, check the hash on VirusTotal")
+
+    if count == 0:
+        print("No attachments")
+
+
 if __name__ == "__main__":
     headers = read_headers("samples/test1.eml")
     check_email(headers)
     print()
     get_urls("samples/test1.eml", get_domain(headers["from"]))
+    print()
+    get_attachments("samples/test1.eml")
