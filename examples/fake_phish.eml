@@ -1,0 +1,50 @@
+From: "Example Bank Security" <security@examplebank.com>
+To: you@example.org
+Subject: URGENT: Your account will be suspended in 24 hours
+Reply-To: verify-team@example-support.net
+Return-Path: <bounce@mailer.example-cheap-hosting.net>
+Authentication-Results: mx.example.org; spf=fail
+ smtp.mailfrom=example-cheap-hosting.net; dkim=none; dmarc=fail
+ header.from=examplebank.com
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="===============3367408567778803240=="
+
+--===============3367408567778803240==
+Content-Type: multipart/alternative;
+ boundary="===============6101828828311735613=="
+
+--===============6101828828311735613==
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+Dear customer,
+
+We detected unusual activity. Verify your account now or it will be suspended:
+http://examplebank-secure-login.example.net/verify?id=48213
+
+See the attached invoice for details.
+
+Example Bank Security Team
+
+--===============6101828828311735613==
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+<html><body><p>Dear customer,</p><p>We detected unusual activity. <a href=3D"=
+http://examplebank-secure-login.example.net/verify?id=3D48213">Verify your ac=
+count now</a> or it will be suspended.</p><p>See the attached invoice for det=
+ails.</p></body></html>
+
+--===============6101828828311735613==--
+
+--===============3367408567778803240==
+Content-Type: application/octet-stream
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="Invoice_Nov2026.pdf.exe"
+MIME-Version: 1.0
+
+VGhpcyBpcyBhIGhhcm1sZXNzIHRlc3QgZmlsZSBmb3IgdGhlIHBoaXNoaW5nIGFuYWx5c2VyLiBJ
+dCBpcyBOT1QgbWFsd2FyZS4K
+
+--===============3367408567778803240==--
