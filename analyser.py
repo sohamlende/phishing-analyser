@@ -28,7 +28,8 @@ def get_domain(address):
 
 
 def check_email(headers):
-    """Check domain alignment and SPF / DKIM / DMARC results."""
+    """Check domain alignment and SPF / DKIM / DMARC. Returns risk points."""
+    score = 0
     from_domain = get_domain(headers["from"])
     return_domain = get_domain(headers["return_path"])
     auth = headers["auth_results"].lower()
@@ -45,6 +46,7 @@ def check_email(headers):
         print("Domains: ALIGNED")
     else:
         print("Domains: MISMATCH - spoof alert")
+        score += 3
 
     # 2. Did each authentication check pass?
     for check in ["spf=pass", "dkim=pass", "dmarc=pass"]:
@@ -52,10 +54,13 @@ def check_email(headers):
             print(check, ": OK")
         else:
             print(check, ": FAILED or missing")
+            score += 2
+
+    return score
 
 
 def get_urls(path, from_domain):
-    """Find every unique link in the email body and flag links outside the sender's domain."""
+    """Find unique links in the body and flag external ones. Returns risk points."""
     with open(path, "rb") as f:
         msg = BytesParser(policy=policy.default).parse(f)
 
@@ -67,16 +72,22 @@ def get_urls(path, from_domain):
     links = set(links)
 
     print("Links found:", len(links))
+    external = False
     for link in links:
         host = urlparse(link).hostname
         if host == from_domain or host.endswith("." + from_domain):
             print("  OK      ", host)
         else:
             print("  EXTERNAL", host, "->", link)
+            external = True
+
+    if external:
+        return 1
+    return 0
 
 
 def get_attachments(path):
-    """List each attachment with its SHA-256 hash and flag risky file types."""
+    """Hash each attachment and flag risky file types. Returns risk points."""
     with open(path, "rb") as f:
         msg = BytesParser(policy=policy.default).parse(f)
 
@@ -84,6 +95,7 @@ def get_attachments(path):
              ".zip", ".rar", ".iso", ".docm", ".xlsm")
 
     count = 0
+    score = 0
     for part in msg.iter_attachments():
         count = count + 1
         name = part.get_filename()
@@ -93,15 +105,29 @@ def get_attachments(path):
         print("  SHA-256:", file_hash)
         if name and name.lower().endswith(risky):
             print("  RISKY file type - do not open, check the hash on VirusTotal")
+            score += 5
 
     if count == 0:
         print("No attachments")
 
+    return score
+
 
 if __name__ == "__main__":
-    headers = read_headers("samples/test1.eml")
-    check_email(headers)
+    path = "samples/test1.eml"
+    headers = read_headers(path)
+    total = 0
+    total += check_email(headers)
     print()
-    get_urls("samples/test1.eml", get_domain(headers["from"]))
+    total += get_urls(path, get_domain(headers["from"]))
     print()
-    get_attachments("samples/test1.eml")
+    total += get_attachments(path)
+
+    print()
+    print("RISK SCORE:", total)
+    if total >= 6:
+        print("Verdict: HIGH RISK - likely phishing")
+    elif total >= 3:
+        print("Verdict: MEDIUM RISK - check carefully")
+    else:
+        print("Verdict: LOW RISK")
