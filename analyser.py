@@ -114,7 +114,7 @@ def get_attachments(path):
 
 
 if __name__ == "__main__":
-    path = "samples/test1.eml"
+    path = "samples/fake_phish.eml"
     headers = read_headers(path)
     total = 0
     total += check_email(headers)
@@ -131,3 +131,4 @@ if __name__ == "__main__":
         print("Verdict: MEDIUM RISK - check carefully")
     else:
         print("Verdict: LOW RISK")
+        
